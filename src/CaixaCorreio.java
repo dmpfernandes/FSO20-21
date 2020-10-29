@@ -4,6 +4,7 @@ import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 
 import TrabalhoPratico1.canalComunicacao.Mensagem;
 
@@ -12,7 +13,7 @@ public class CaixaCorreio {
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
 	private static File file;
-	final static int MAX_BUFFER = 256;
+	final static int MAX_BUFFER = 8448;//256bytes texto + 4bytes id + 4Bytes tipo * 32 mensagens 
 	
 	public CaixaCorreio(String nomeDoFicheiro) {
 		file = new File(nomeDoFicheiro);
@@ -27,9 +28,12 @@ public class CaixaCorreio {
 	}
 
 	public void put(Mensagem msg) {
-		this.map.putInt(msg.getId());
-		this.map.putInt(msg.getTipo());
-		this.map.putChar(value)
+		map.putInt(msg.getId());
+		map.putInt(msg.getTipo());
+		for( char c : msg.getTexto().toCharArray()) {
+			map.putChar(c);
+			
+		};
 	}
 
 	public Mensagem get() {
@@ -43,5 +47,15 @@ public class CaixaCorreio {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private char[] transformaTexto(String texto) {
+		char[] resultado = new char[256];
+		
+		for (int i = 0; i < 256; i++) {
+			resultado[i] = (texto.toCharArray().length>i)?texto.toCharArray()[i]:' ';
+		}
+		System.out.println(resultado.toString());
+		return resultado;
 	}
 }
