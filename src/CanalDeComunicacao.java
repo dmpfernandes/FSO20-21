@@ -6,16 +6,15 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
-import TrabalhoPratico1.canalComunicacao.Mensagem;
 
-public class CaixaCorreio {
+public class CanalDeComunicacao {
 
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
 	private static File file;
 	final static int MAX_BUFFER = 8448;//256bytes texto + 4bytes id + 4Bytes tipo * 32 mensagens 
 	
-	public CaixaCorreio(String nomeDoFicheiro) {
+	public CanalDeComunicacao(String nomeDoFicheiro) {
 		file = new File(nomeDoFicheiro);
 		try {
 			this.memoryMappedFile = new RandomAccessFile(file, "rw");
@@ -28,17 +27,25 @@ public class CaixaCorreio {
 	}
 
 	public void put(Mensagem msg) {
+		map.position(0);
 		map.putInt(msg.getId());
 		map.putInt(msg.getTipo());
-		for( char c : msg.getTexto().toCharArray()) {
+		for( char c : transformaTexto(msg.getTexto())) {
 			map.putChar(c);
-			
 		};
 	}
 
 	public Mensagem get() {
+		map.position(0);
+		Integer id = map.getInt();
+		Integer tipo = map.getInt();
+		String texto = "";
+		for(int i = 0; i<256; i++) {
+			texto += map.getChar();
+		}
 		
-		return null;
+		return (id != null && tipo != null && texto != "")? new Mensagem(id,tipo,texto): null;
+		
 	}
 	
 	public void fecharCanal() {

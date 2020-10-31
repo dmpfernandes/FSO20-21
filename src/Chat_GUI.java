@@ -6,12 +6,34 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 
 public class Chat_GUI extends JFrame{
+	
+	private static Chat_GUI frame;
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					frame = new Chat_GUI();
+					frame.setPreferredSize(new Dimension(600, 300));
+				    frame.pack();
+				    frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	public Chat_GUI() {
 		
 		JPanel panel = new JPanel();
