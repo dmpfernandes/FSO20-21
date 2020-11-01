@@ -28,6 +28,7 @@ public class Chat_GUI extends JFrame{
 	private TratamentoMensagem tratamentoMensagem;
 	protected String nomeFicheiro;
 	protected ReceberMensagem_Servico receberMensagem_Servico;
+	private JTextArea textAreaCaixaCorreio;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -64,6 +65,7 @@ public class Chat_GUI extends JFrame{
 		JRadioButton btnTodas = new JRadioButton("Todas");
 		btnTodas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				textAreaCaixaCorreio.setText("");
 				if(receberMensagem_Servico != null) {
 					receberMensagem_Servico.setTipo(0);
 				}
@@ -77,6 +79,7 @@ public class Chat_GUI extends JFrame{
 		JRadioButton btnFSO = new JRadioButton("FSO");
 		btnFSO.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				textAreaCaixaCorreio.setText("");
 				if(receberMensagem_Servico != null) {
 					receberMensagem_Servico.setTipo(1);
 				}
@@ -90,6 +93,7 @@ public class Chat_GUI extends JFrame{
 		JRadioButton btnRobots = new JRadioButton("Robots");
 		btnRobots.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				textAreaCaixaCorreio.setText("");
 				if(receberMensagem_Servico != null) {
 					receberMensagem_Servico.setTipo(2);
 				}
@@ -103,6 +107,7 @@ public class Chat_GUI extends JFrame{
 		JRadioButton btnJava = new JRadioButton("Java");
 		btnJava.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				textAreaCaixaCorreio.setText("");
 				if(receberMensagem_Servico != null) {
 					receberMensagem_Servico.setTipo(3);
 				}
@@ -153,10 +158,15 @@ public class Chat_GUI extends JFrame{
 		panel.add(btnEnviar);
 		
 		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				textAreaCaixaCorreio.setText("");
+			}
+		});
 		btnLimpar.setBounds(483, 55, 94, 29);
 		panel.add(btnLimpar);
 		
-		JTextArea textAreaCaixaCorreio = new JTextArea();
+		textAreaCaixaCorreio = new JTextArea();
 		textAreaCaixaCorreio.setBounds(159, 93, 411, 163);
 		panel.add(textAreaCaixaCorreio);
 		

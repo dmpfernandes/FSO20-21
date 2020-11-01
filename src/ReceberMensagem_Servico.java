@@ -5,6 +5,7 @@ public class ReceberMensagem_Servico implements Runnable{
 	private TratamentoMensagem tratamentoMensagem;
 	private int tipo;
 	private JTextArea textArea;
+	private Integer id = null;
 
 	public ReceberMensagem_Servico(TratamentoMensagem tratamentoMensagem, int tipo, JTextArea textArea) {
 		this.tratamentoMensagem = tratamentoMensagem;
@@ -17,8 +18,15 @@ public class ReceberMensagem_Servico implements Runnable{
 		// TODO Auto-generated method stub
 		while(true) {
 			Mensagem msg = tratamentoMensagem.receberMensagem(tipo);
+			
 			if(msg != null) {
-				textArea.setText(textArea.getText() + "\n" + msg.toString());
+				
+				if(id == null || id < msg.getId()) {
+					id = msg.getId();
+					textArea.setText(textArea.getText() + "\n" + msg.toString());
+				}
+				
+				
 			}
 			try {
 				Thread.sleep(1000);
@@ -31,5 +39,6 @@ public class ReceberMensagem_Servico implements Runnable{
 
 	public void setTipo(int tipo) {
 		this.tipo = tipo;
+		id= null;
 	}
 }
