@@ -2,14 +2,14 @@
 public class Mensagem {
 	
 	private int id;
-	private int tipo;
+	private Integer tipo;
 	private String texto;
 	
-	public Mensagem(int id, int tipo, String texto){
-		this.id = id;
+	public Mensagem(Integer tipo, String texto){
 		this.tipo = tipo;
 		this.texto = texto;
 	}
+	
 
 	public int getId() {
 		return id;
@@ -20,11 +20,11 @@ public class Mensagem {
 	}
 
 	public int getTipo() {
-		return tipo;
+		return tipo.intValue();
 	}
 
 	public void setTipo(int tipo) {
-		this.tipo = tipo;
+		this.tipo = Integer.valueOf(tipo);
 	}
 
 	public String getTexto() {

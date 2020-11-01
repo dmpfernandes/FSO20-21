@@ -12,6 +12,7 @@ public class CanalDeComunicacao {
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
 	private static File file;
+	private static int idx = 0;
 	final static int MAX_BUFFER = 8448;//256bytes texto + 4bytes id + 4Bytes tipo * 32 mensagens 
 	
 	public CanalDeComunicacao(String nomeDoFicheiro) {
@@ -27,6 +28,8 @@ public class CanalDeComunicacao {
 	}
 
 	public void put(Mensagem msg) {
+		msg.setId(idx);
+		idx++;
 		map.position(0);
 		map.putInt(msg.getId());
 		map.putInt(msg.getTipo());
@@ -43,8 +46,10 @@ public class CanalDeComunicacao {
 		for(int i = 0; i<256; i++) {
 			texto += map.getChar();
 		}
+		Mensagem msg = new Mensagem(tipo,texto);
+		msg.setId(id);
 		
-		return (id != null && tipo != null && texto != "")? new Mensagem(id,tipo,texto): null;
+		return (id != null && tipo != null && texto != "")? msg: null;
 		
 	}
 	
@@ -64,5 +69,9 @@ public class CanalDeComunicacao {
 		}
 		System.out.println(resultado.toString());
 		return resultado;
+	}
+	
+	public boolean estaVazio() {
+		return (idx == 0) ? true : false;
 	}
 }

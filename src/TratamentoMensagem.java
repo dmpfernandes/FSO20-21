@@ -15,7 +15,9 @@ public class TratamentoMensagem {
 	
 	public Mensagem receberMensagem (int tipo) {
 		if(tipo == 0 || canal.get().getTipo() == tipo) {
-			return canal.get();
+			if(!canal.estaVazio()) {
+				return canal.get();
+			}
 		}
 		return null;
 	}
