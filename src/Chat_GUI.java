@@ -16,6 +16,8 @@ import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Chat_GUI extends JFrame{
 	
@@ -27,26 +29,60 @@ public class Chat_GUI extends JFrame{
 	private static Chat_GUI frame;
 	private TratamentoMensagem tratamentoMensagem;
 	protected String nomeFicheiro;
-	protected ReceberMensagem_Servico receberMensagem_Servico;
+	protected int tipo;
+	private Integer id = null;
+	private boolean running = false;
 	private JTextArea textAreaCaixaCorreio;
 	
+	
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		try {
+			frame = new Chat_GUI();
+			frame.setPreferredSize(new Dimension(600, 300));
+		    frame.pack();
+		    frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
+			frame.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		while(true) {
+			if(running) {
+				Mensagem msg = tratamentoMensagem.receberMensagem(tipo);
+				if(msg != null) {
+					if(id == null || id < msg.getId()) {
+						id = msg.getId();
+						textAreaCaixaCorreio.setText(textAreaCaixaCorreio.getText() + "\n" + msg.toString());
+					}
+				}
 				try {
-					frame = new Chat_GUI();
-					frame.setPreferredSize(new Dimension(600, 300));
-				    frame.pack();
-				    frame.setLocationRelativeTo(null);
-					frame.setVisible(true);
-				} catch (Exception e) {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-		});
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public Chat_GUI() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (tratamentoMensagem != null) {
+					tratamentoMensagem.fecharCanal();
+				}
+				System.exit(0);
+			}
+		});
+		
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
@@ -66,9 +102,7 @@ public class Chat_GUI extends JFrame{
 		btnTodas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaCaixaCorreio.setText("");
-				if(receberMensagem_Servico != null) {
-					receberMensagem_Servico.setTipo(0);
-				}
+				tipo = 0;
 			}
 		});
 		btnTodas.setName("0");
@@ -80,9 +114,7 @@ public class Chat_GUI extends JFrame{
 		btnFSO.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaCaixaCorreio.setText("");
-				if(receberMensagem_Servico != null) {
-					receberMensagem_Servico.setTipo(1);
-				}
+				tipo = 1;
 			}
 		});
 		btnFSO.setName("1");
@@ -94,9 +126,7 @@ public class Chat_GUI extends JFrame{
 		btnRobots.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaCaixaCorreio.setText("");
-				if(receberMensagem_Servico != null) {
-					receberMensagem_Servico.setTipo(2);
-				}
+				tipo = 2;
 			}
 		});
 		btnRobots.setName("2");
@@ -108,9 +138,7 @@ public class Chat_GUI extends JFrame{
 		btnJava.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaCaixaCorreio.setText("");
-				if(receberMensagem_Servico != null) {
-					receberMensagem_Servico.setTipo(3);
-				}
+				tipo = 3;
 			}
 		});
 		btnJava.setName("3");
@@ -127,7 +155,6 @@ public class Chat_GUI extends JFrame{
 		JButton btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).forEach(c -> System.out.println(c.getName()));
 				nomeFicheiro = textFieldPesquisa.getText();
 			}
 		});
@@ -151,6 +178,7 @@ public class Chat_GUI extends JFrame{
 					Integer tipo = Integer.parseInt(Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().get().getName());
 					Mensagem msg = new Mensagem(tipo, textFieldMsgEnviar.getText());
 					tratamentoMensagem.enviarMensagem(msg);
+					textFieldMsgEnviar.setText("");
 				}
 			}
 		});
@@ -173,12 +201,12 @@ public class Chat_GUI extends JFrame{
 		JRadioButton rdbtnAbrir = new JRadioButton("Abrir");
 		rdbtnAbrir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(nomeFicheiro != null && !nomeFicheiro.isEmpty()) {
-					int tipo = Integer.parseInt(Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().get().getName());
+				if(rdbtnAbrir.isSelected() && nomeFicheiro != null && !nomeFicheiro.isEmpty()) {
+					tipo = Integer.parseInt(Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().get().getName());
 					tratamentoMensagem = new TratamentoMensagem(nomeFicheiro);
-					receberMensagem_Servico = new ReceberMensagem_Servico(tratamentoMensagem, tipo, textAreaCaixaCorreio);
-					Thread thread = new Thread(receberMensagem_Servico);
-					thread.start();
+					running = true;
+				}else if(!rdbtnAbrir.isSelected()){
+					running = false;
 				}
 			}
 		});

@@ -2,7 +2,6 @@
 public class TratamentoMensagem {
 	
 	private CanalDeComunicacao canal;
-	private int idx = 0;
 	
 	TratamentoMensagem(String nomeDoFicheiro){
 		canal = new CanalDeComunicacao(nomeDoFicheiro);
@@ -11,19 +10,21 @@ public class TratamentoMensagem {
 	
 	
 	public void enviarMensagem (Mensagem msg){
-		msg.setId(idx);
 		canal.put(msg);
 	}
 
 	public Mensagem receberMensagem(int tipo) {
 		Mensagem msg = canal.get();
 		if (msg != null) {
-			if (tipo == 0 || msg.getTipo() == tipo) {
-				idx = msg.getId()+1;
+			if (tipo == 0 || msg.getTipo() == tipo || msg.getTipo() == 0) {
 				return msg;
 			}
 		}
 		return null;
+	}
+	
+	public void fecharCanal() {
+		canal.fecharCanal();
 	}
 
 }

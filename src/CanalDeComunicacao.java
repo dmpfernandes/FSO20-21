@@ -13,6 +13,7 @@ public class CanalDeComunicacao {
 	private static MappedByteBuffer map;
 	private static File file;
 	final static int MAX_BUFFER = 8448;//256bytes texto + 4bytes id + 4Bytes tipo * 32 mensagens 
+	private int idx = 0; 
 	
 	public CanalDeComunicacao(String nomeDoFicheiro) {
 		file = new File(nomeDoFicheiro);
@@ -27,9 +28,9 @@ public class CanalDeComunicacao {
 	}
 
 	public void put(Mensagem msg) {
-
+		
 		map.position(0);
-		map.putInt(msg.getId());
+		map.putInt(idx);
 		map.putInt(msg.getTipo());
 		for( char c : transformaTexto(msg.getTexto())) {
 			map.putChar(c);
@@ -46,6 +47,7 @@ public class CanalDeComunicacao {
 		}
 		Mensagem msg = new Mensagem(tipo,texto);
 		msg.setId(id);
+		idx = id+1;
 		
 		if(id != null && tipo != null && texto != "") {
 			return msg;
