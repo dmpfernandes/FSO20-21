@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.border.EtchedBorder;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,12 +13,14 @@ import java.awt.EventQueue;
 import javax.swing.ButtonGroup;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 public class Chat_GUI extends JFrame{
 	
@@ -27,7 +30,7 @@ public class Chat_GUI extends JFrame{
 	private JTextField textFieldMsgEnviar;
 	
 	private static Chat_GUI frame;
-	private TratamentoMensagem tratamentoMensagem;
+	private CanalDeComunicacao canal;
 	protected String nomeFicheiro;
 	protected int tipo;
 	private Integer id = null;
@@ -51,11 +54,13 @@ public class Chat_GUI extends JFrame{
 	public void run() {
 		while(true) {
 			if(running) {
-				Mensagem msg = tratamentoMensagem.receberMensagem(tipo);
+				Mensagem msg = canal.get();
 				if(msg != null) {
-					if(id == null || id < msg.getId()) {
-						id = msg.getId();
-						textAreaCaixaCorreio.setText(textAreaCaixaCorreio.getText() + "\n" + msg.toString());
+					if (tipo == 0 || msg.getTipo() == tipo || msg.getTipo() == 0) {
+						if(id == null || id < msg.getId()) {
+							id = msg.getId();
+							textAreaCaixaCorreio.setText(textAreaCaixaCorreio.getText() + "\n" + msg.toString());
+						}
 					}
 				}
 				try {
@@ -76,8 +81,8 @@ public class Chat_GUI extends JFrame{
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if (tratamentoMensagem != null) {
-					tratamentoMensagem.fecharCanal();
+				if (canal != null) {
+					canal.fecharCanal();
 				}
 				System.exit(0);
 			}
@@ -156,11 +161,27 @@ public class Chat_GUI extends JFrame{
 		btnPesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				nomeFicheiro = textFieldPesquisa.getText();
+				if(nomeFicheiro == null || nomeFicheiro.isEmpty()) {
+					JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+
+			        int returnValue = jfc.showOpenDialog(btnPesquisar);
+			        // int returnValue = jfc.showSaveDialog(null);
+
+			        if (returnValue == JFileChooser.APPROVE_OPTION) {
+			            File selectedFile = jfc.getSelectedFile();
+			            textFieldPesquisa.setText(selectedFile.getName());
+			            System.out.println(selectedFile.getAbsolutePath());
+			            nomeFicheiro = selectedFile.getAbsolutePath();
+			        }
+				}
+				
 			}
 		});
 		btnPesquisar.setBounds(389, 1, 94, 29);
 		panel.add(btnPesquisar);
 		
+		
+        
 		textFieldMsgEnviar = new JTextField();
 		textFieldMsgEnviar.setBounds(159, 55, 218, 26);
 		panel.add(textFieldMsgEnviar);
@@ -174,10 +195,10 @@ public class Chat_GUI extends JFrame{
 		JButton btnEnviar = new JButton("Enviar");
 		btnEnviar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(tratamentoMensagem != null) {
+				if(canal != null) {
 					Integer tipo = Integer.parseInt(Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().get().getName());
 					Mensagem msg = new Mensagem(tipo, textFieldMsgEnviar.getText());
-					tratamentoMensagem.enviarMensagem(msg);
+					canal.put(msg);
 					textFieldMsgEnviar.setText("");
 				}
 			}
@@ -201,13 +222,16 @@ public class Chat_GUI extends JFrame{
 		JRadioButton rdbtnAbrir = new JRadioButton("Abrir");
 		rdbtnAbrir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(rdbtnAbrir.isSelected() && nomeFicheiro != null && !nomeFicheiro.isEmpty()) {
+				if(rdbtnAbrir.isSelected() && nomeFicheiro != null && !nomeFicheiro.isEmpty() && Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().isPresent()) {
 					tipo = Integer.parseInt(Arrays.asList(panel_1.getComponents()).stream().filter(c -> ((JRadioButton)c).isSelected()).findFirst().get().getName());
-					tratamentoMensagem = new TratamentoMensagem(nomeFicheiro);
+					canal = new CanalDeComunicacao(nomeFicheiro);
 					running = true;
 				}else if(!rdbtnAbrir.isSelected()){
 					running = false;
+				}else {
+					rdbtnAbrir.setSelected(false);
 				}
+				
 			}
 		});
 		rdbtnAbrir.setBounds(500, 2, 70, 23);
